@@ -25,7 +25,6 @@ public class Driver extends Command{
 
     @Override
     public void initialize(){
-        drivetrain.resetEncoder();
         drivetrain.resetGyro();
     }
 
@@ -48,8 +47,7 @@ public class Driver extends Command{
 
         if(drivetrain.isFieldOriented()){
             drivetrain.fieldOrientedDrive(speed, turn, squareInput);
-        }
-        else{
+        }else{
             drivetrain.drive(speed, turn, squareInput);
         }
 
