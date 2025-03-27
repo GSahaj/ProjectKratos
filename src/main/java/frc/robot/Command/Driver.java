@@ -30,21 +30,26 @@ public class Driver extends Command{
 
     @Override
     public void execute(){
+        //Set the speed and turn parameter to joystick inputs
         double speed = -controller.getY();
         double turn = controller.getX();
 
+        //Toggle between Field Orientated
         if(controller.getRawButton(fieldOrientedButton)){
             drivetrain.toggleFieldOriented();
         }
-
+        
+        //Reset Field Orientation
         if(controller.getRawButton(resetOrientationButton)){
             drivetrain.resetFieldOrientation();
         }
 
+        //Disable SquareInput
         if(controller.getRawButton(3)){
             squareInput = !squareInput;
         }
 
+        //Check if Field Orientated
         if(drivetrain.isFieldOriented()){
             drivetrain.fieldOrientedDrive(speed, turn, squareInput);
         }else{
