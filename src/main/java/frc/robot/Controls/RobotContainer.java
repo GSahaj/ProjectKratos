@@ -11,8 +11,8 @@ import frc.robot.Subsystem.Vision;
 
 public class RobotContainer {
     private static final int JOYSTICK_PORT = 0;
-    private static final int AIM_BUTTON = 4; //example for aim button
-    private static final int TOGGLE_VISION_BUTTON = 5; //Button for toggling vision
+    private static final int AIM_BUTTON = 1; //example for aim button
+    private static final int TOGGLE_VISION_BUTTON = 3; //Button for toggling vision
 
     private final Joystick controller = new Joystick(JOYSTICK_PORT);
     private final Drivetrain drivetrain = new Drivetrain();
@@ -24,7 +24,7 @@ public class RobotContainer {
 
     public RobotContainer(){
 
-        this.driver = new Driver(drivetrain, controller, 1, 2);
+        this.driver = new Driver(drivetrain, controller, 5, 6);
         this.visionCommand = new VisionCommand(drivetrain, vision, 1.5, 0.3);
 
         setDefaultCommand();
