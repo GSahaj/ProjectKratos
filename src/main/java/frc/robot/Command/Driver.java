@@ -45,7 +45,7 @@ public class Driver extends Command{
         }
 
         //Disable SquareInput
-        if(controller.getRawButton(3)){
+        if(controller.getRawButton(2)){
             squareInput = !squareInput;
         }
 
