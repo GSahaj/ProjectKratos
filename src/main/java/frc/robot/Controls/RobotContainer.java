@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Command.AutoCommand;
 import frc.robot.Command.Driver;
 import frc.robot.Command.VisionCommand;
 import frc.robot.Subsystem.Drivetrain;
@@ -21,6 +22,7 @@ public class RobotContainer {
     private final Driver driver;
     private final VisionCommand visionCommand;
     private boolean visionEnabled = true;
+    private final AutoCommand autocommand = new AutoCommand(drivetrain);
 
     public RobotContainer(){
 
@@ -42,14 +44,15 @@ public class RobotContainer {
         }).ignoringDisable(true);
 
         //Toggle between vision
-        new JoystickButton(controller, TOGGLE_VISION_BUTTON)
-            .onTrue(toggleVisionCommand);  // or .whenPressed(toggleVisionCommand)
-                
-
+        new JoystickButton(controller, TOGGLE_VISION_BUTTON).onTrue(toggleVisionCommand);  // or .whenPressed(toggleVisionCommand)
     }
 
     private void setDefaultCommand(){
         drivetrain.setDefaultCommand(driver);
+    }
+
+    public Command getAutoCommand(){
+        return autocommand;
     }
 
     public void disable(){
