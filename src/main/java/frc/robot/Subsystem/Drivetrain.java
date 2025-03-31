@@ -136,6 +136,14 @@ public class Drivetrain extends SubsystemBase {
         return gyro.getAngle();
     }
 
+    public void turnByGyro(double gyroAngle, double turnSpeed){
+        gyro.reset();
+        while(Math.abs(getGyroAngle()) < gyroAngle){
+            drive(0, turnSpeed, false);
+        }
+        drive(0, 0, false);
+    }
+
     //Converts Gyro Angle to Rotation2D
     public Rotation2d getGyroRotation2d(){
         return Rotation2d.fromDegrees(-gyro.getAngle()).minus(gyroOffset);
