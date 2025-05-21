@@ -45,14 +45,16 @@ public class Driver extends Command{
         }
 
         //Disable SquareInput
-        if(controller.getRawButton(2)){
+        if(controller.getRawButton(5)){
             squareInput = !squareInput;
         }
 
         //Check if Field Orientated
         if(drivetrain.isFieldOriented()){
             drivetrain.fieldOrientedDrive(speed, turn, squareInput);
-        }else{
+        }
+        
+        else{
             drivetrain.drive(speed, turn, squareInput);
         }
 

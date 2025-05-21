@@ -1,86 +1,35 @@
 package frc.robot.Subsystem;
 
-//WPIlib FRF imports
-import edu.wpi.first.math.filter.SlewRateLimiter;
+//WPIlib FRC imports
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotMap;
 
-
-public class Drivetrain extends SubsystemBase {
-    //Hardware for the Motor Channel
-    private static final int LeftMotorChannel = 0;
-    private static final int RightMotorChannel = 1;
-
-    //Variables for the Motor Controller
-    private VictorSP rightmotor;
-    private VictorSP leftmotor;
-
-    //Variales for the Differential drive and gyro
-    private DifferentialDrive drive;
-    private ADXRS450_Gyro gyro;
-
-    //Variables for if robot is field oriented and Rotational2D
-    private Rotation2d gyroOffset;
-    private boolean fieldOriented;
-
-    //Variable for the "Smoother" Controls
-    private final SlewRateLimiter speedLimiter;
-    private final SlewRateLimiter turnLimiter;
-
-    //Variables for field and odometry
-    private final DifferentialDriveOdometry odometry;
-    private final Field2d field;
-
-    public Drivetrain(){
-        //Creating Objects for the Motors Controllers
-        rightmotor = new VictorSP(RightMotorChannel); 
-        leftmotor = new VictorSP(LeftMotorChannel);
-
-        //Setting the right side to inverted to have them move relative to each other
-        rightmotor.setInverted(true);
-        leftmotor.setInverted(false);
-
-        //bind both motors to Differenital Drive Object
-        drive = new DifferentialDrive(leftmotor, rightmotor);
-        gyro = new ADXRS450_Gyro(); //Object for the Gyro Sensor
-
-        drive.setSafetyEnabled(true);
-        drive.setExpiration(0.1); 
-
-        //Creating Objects of each Variable
-        field = new Field2d();
-        gyroOffset = new Rotation2d();
-        fieldOriented = false; //Setting current status of field oriented to false
-
-        //Object of the Odometry which estimates the robot's position on the field by using sensor data
-        odometry = new DifferentialDriveOdometry(getGyroRotation2d(), 0, 0);
-
-        //Used to make the input signals from the joystick smoother
-        speedLimiter = new SlewRateLimiter(3.0);
-        turnLimiter = new SlewRateLimiter(3.0);
-
-        gyro.calibrate();
-        gyro.reset();
-
-    }
+public class Drivetrain extends SubsystemBase{
+    public Drivetrain(){}
 
     //Applies the deadband and the Limiters, Using the squareInput --> Changes the Input of the Joystick
     public void drive(double speed, double turn, boolean squareInput){
         speed = applyDeadband(speed, 0.02);
         turn = applyDeadband(turn, 0.02);
 
-        speed = speedLimiter.calculate(speed);
-        turn = turnLimiter.calculate(turn);
+        speed = RobotMap.variables.speedLimiter.calculate(speed);
+        turn = RobotMap.variables.turnLimiter.calculate(turn);
 
-        drive.arcadeDrive(speed, turn, squareInput);
+        RobotMap.variables.drive.arcadeDrive(speed, turn, squareInput);
+    }
+
+    public void curvatureDrive(double speed, double turn, boolean squareInput){
+        speed = applyDeadband(speed, 0.02);
+        turn = applyDeadband(turn, 0.02);
+
+        speed = RobotMap.variables.speedLimiter.calculate(speed);
+        turn = RobotMap.variables.turnLimiter.calculate(turn);
+
+        RobotMap.variables.drive.curvatureDrive(speed, turn, squareInput);
     }
 
     //Method to Remove Drift, A deadband is applied to remove the anomalies away from the netural zone
@@ -93,7 +42,7 @@ public class Drivetrain extends SubsystemBase {
 
     //Makes the robot field-orientated and face the drive
     public void fieldOrientedDrive(double xSpeed, double ySpeed, boolean squareInput){
-        if(!fieldOriented){
+        if(!RobotMap.variables.fieldOriented){
             drive(xSpeed, ySpeed, squareInput);
             return;
         }
@@ -109,35 +58,35 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public boolean isFieldOriented() {
-        return fieldOriented;
+        return RobotMap.variables.fieldOriented;
     }
 
     //Toggle between robot-drive and field-oriented drive
     public void toggleFieldOriented(){
-        fieldOriented = !fieldOriented;
+        RobotMap.variables.fieldOriented = !RobotMap.variables.fieldOriented;
 
-        if(fieldOriented){
-            gyroOffset = getGyroRotation2d();
+        if(RobotMap.variables.fieldOriented){
+            RobotMap.variables.gyroOffset = getGyroRotation2d();
         }
     }
 
     //reset fied orientated drive
     public void resetFieldOrientation(){
-        gyroOffset = getGyroRotation2d();
+        RobotMap.variables.gyroOffset = getGyroRotation2d();
     }
 
     public void resetGyro(){
-        gyro.reset();
-        gyroOffset = getGyroRotation2d();
+        RobotMap.variables.gyro.reset();
+        RobotMap.variables.gyroOffset = getGyroRotation2d();
     }
 
     //Get gyro Angle
     public double getGyroAngle(){
-        return gyro.getAngle();
+        return RobotMap.variables.gyro.getAngle();
     }
 
     public void turnByGyro(double gyroAngle, double turnSpeed){
-        gyro.reset();
+        RobotMap.variables.gyro.reset();
         while(Math.abs(getGyroAngle()) < gyroAngle){
             drive(0, turnSpeed, false);
         }
@@ -146,34 +95,34 @@ public class Drivetrain extends SubsystemBase {
 
     //Converts Gyro Angle to Rotation2D
     public Rotation2d getGyroRotation2d(){
-        return Rotation2d.fromDegrees(-gyro.getAngle()).minus(gyroOffset);
+        return Rotation2d.fromDegrees(-RobotMap.variables.gyro.getAngle()).minus(RobotMap.variables.gyroOffset);
     }
 
     public Pose2d getPose(){
-        return odometry.getPoseMeters();
+        return RobotMap.variables.odometry.getPoseMeters();
     }
 
     public void resetOdometry(Pose2d pose){
-        gyro.reset();
-        odometry.resetPosition(getGyroRotation2d(), 0, 0, pose);
+        RobotMap.variables.gyro.reset();
+        RobotMap.variables.odometry.resetPosition(getGyroRotation2d(), 0, 0, pose);
     }
 
     public void stop(){
-        speedLimiter.reset(0);
-        turnLimiter.reset(0);
-        drive.arcadeDrive(0, 0);
+        RobotMap.variables.speedLimiter.reset(0);
+        RobotMap.variables.turnLimiter.reset(0);
+        RobotMap.variables.drive.arcadeDrive(0, 0);
     }
 
 
     @Override
     public void periodic(){
-        odometry.update(getGyroRotation2d(), 0, 0);
+        RobotMap.variables.odometry.update(getGyroRotation2d(), 0, 0);
         
-        field.setRobotPose(getPose());
+        RobotMap.variables.field.setRobotPose(getPose());
 
         SmartDashboard.putNumber("Gyro Angle: ", getGyroAngle());
-        SmartDashboard.putData("Field", field);
-        SmartDashboard.putBoolean("Field Oriented", fieldOriented);
+        SmartDashboard.putData("Field", RobotMap.variables.field);
+        SmartDashboard.putBoolean("Field Oriented", RobotMap.variables.fieldOriented);
         SmartDashboard.putString("Robot Pose", getPose().toString());
     }
 }
